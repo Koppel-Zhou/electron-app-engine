@@ -1,0 +1,18 @@
+{
+  "name": "electron-app-engine",
+  "version": "4.6.0",
+  "description": "A foundation for scalable desktop apps",
+  "license": "MIT",
+  "author": {
+    "name": "Electron React Engine Maintainers",
+    "email": "koppel.zhou@gmail.com",
+    "url": "https://github.com/Koppel-Zhou/electron-app-engine"
+  },
+  "main": "./dist/main/main.js",
+  "scripts": {
+    "rebuild": "node -r ts-node/register ../../.engine/scripts/electron-rebuild.js",
+    "postinstall": "npm run rebuild && npm run link-modules",
+    "link-modules": "node -r ts-node/register ../../.engine/scripts/link-modules.ts"
+  },
+  "dependencies": {}
+}

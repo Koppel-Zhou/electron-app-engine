@@ -1,5 +1,8 @@
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import { init as initSentry } from '../common/sentry';
+
+initSentry();
 
 const container = document.getElementById('root') as HTMLElement;
 const root = createRoot(container);

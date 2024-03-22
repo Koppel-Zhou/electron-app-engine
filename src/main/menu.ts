@@ -281,6 +281,24 @@ export default class MenuBuilder {
               shell.openExternal('https://github.com/electron/electron/issues');
             },
           },
+          {
+            label: 'Throw Error',
+            click() {
+              throw new Error('test throw in main');
+            },
+          },
+          {
+            label: 'Undefined',
+            click() {
+              mainUndefined();
+            },
+          },
+          {
+            label: 'Crash',
+            click() {
+              process.crash();
+            },
+          },
         ],
       },
     ];

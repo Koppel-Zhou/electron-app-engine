@@ -14,7 +14,9 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { init as initSentry } from '../common/sentry';
 
+initSentry();
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';

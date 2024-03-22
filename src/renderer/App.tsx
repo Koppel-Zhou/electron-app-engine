@@ -9,6 +9,15 @@ function Hello() {
         <img width="200" alt="icon" src={icon} />
       </div>
       <h1>electron-app-engine</h1>
+      <button onClick={() => { throw new Error('test throw in renderer') }}>
+        test throw in renderer
+      </button>
+      <button onClick={() => { rendererUndefined() }}>
+        rendererUndefined
+      </button>
+      <button onClick={() => { process.crash() }}>
+        rendererCrash
+      </button>
     </div>
   );
 }

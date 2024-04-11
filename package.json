@@ -121,7 +121,7 @@
     "css-loader": "^6.8.1",
     "css-minimizer-webpack-plugin": "^5.0.1",
     "detect-port": "^1.5.1",
-    "electron": "^26.2.1",
+    "electron": "23.3.13",
     "electron-builder": "^24.6.4",
     "electron-devtools-installer": "^3.2.0",
     "electronmon": "^2.0.2",
@@ -205,6 +205,16 @@
       "target": [
         "nsis"
       ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "createDesktopShortcut": true
     },
     "linux": {
       "target": [

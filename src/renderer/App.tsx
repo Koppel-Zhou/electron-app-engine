@@ -18,6 +18,9 @@ function Hello() {
       <button onClick={() => { process.crash() }}>
         rendererCrash
       </button>
+      <button onClick={() => { window.electron.ipcRenderer.sendMessage('namedpipe-send')}}>
+        NamedPipe Send
+      </button>
     </div>
   );
 }

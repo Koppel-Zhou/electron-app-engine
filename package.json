@@ -36,6 +36,7 @@
     "lint:fix": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "package": "ts-node ./.engine/scripts/clean.js dist && npm run build && electron-builder build --publish never && npm run build:dll",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
+    "start": "ts-node ./.engine/scripts/check-port-in-use.js && npm run start:renderer",
     "start:9999": "cross-env PORT=9999 ts-node ./.engine/scripts/check-port-in-use.js && cross-env PORT=9999 npm run start:renderer",
     "start:8888": "cross-env PORT=8888 ts-node ./.engine/scripts/check-port-in-use.js && cross-env PORT=8888 npm run start:renderer",
     "start:main": "cross-env NODE_ENV=development electronmon -r ts-node/register/transpile-only .",

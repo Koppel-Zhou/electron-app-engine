@@ -7,6 +7,7 @@ module.exports = {
     'plugin:promise/recommended',
     'plugin:compat/recommended',
     'plugin:prettier/recommended',
+    'plugin:import/recommended',
   ],
   env: {
     browser: true,

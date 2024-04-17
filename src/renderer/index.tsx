@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import App from './App';
-import { init as initSentry } from '../common/sentry';
+import initSentry from '../common/sentry';
 
 initSentry();
 

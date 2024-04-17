@@ -2,12 +2,24 @@ import net from 'net';
 import EventEmitter from 'events';
 import logger from 'electron-log';
 
-let instance: RPCServer | null = null;
+interface RPCSERVER extends EventEmitter {
+  pipePath: string;
+  server: net.Server;
+  stream: net.Socket;
+  send(message: any): void;
+  stop(): void;
+  on(event: string, listener: (arg1: string, arg2: number) => void): this;
+}
+
+let instance: RPCSERVER | null = null;
 
 class RPCServer extends EventEmitter {
   pipePath!: string;
+
   server!: net.Server;
+
   stream!: net.Socket;
+
   constructor(pipePath: string) {
     super();
     if (!instance) {
@@ -15,48 +27,45 @@ class RPCServer extends EventEmitter {
       this.pipePath = pipePath;
       this.server = net.createServer((stream: any) => {
         this.stream = stream;
-        logger.info('Server Connected')
-        this.stream.on('data', (data: { toString: () => string; }) => {
-          logger.info('Get Message From Client:', data.toString())
+        logger.info('Server Connected');
+        this.stream.on('data', (data: { toString: () => string }) => {
+          logger.info('Get Message From Client:', data.toString());
 
-          const message = JSON.parse(data.toString())
-          this.emit('message', message)
-        })
+          const message = JSON.parse(data.toString());
+          this.emit('message', message);
+        });
 
         this.stream.on('error', (error) => {
-          logger.info('Client Disconnected')
-          this.emit('error', error)
-        })
+          logger.info('Client Disconnected');
+          this.emit('error', error);
+        });
 
         this.stream.on('end', () => {
-          logger.info('Client Disconnected')
-          this.emit('end')
-        })
+          logger.info('Client Disconnected');
+          this.emit('end');
+        });
       });
       this.server.listen(this.pipePath, () => {
-        logger.info('NamedPipe Start')
-      })
+        logger.info('NamedPipe Start');
+      });
     }
+    // eslint-disable-next-line no-constructor-return
     return instance;
   }
 
-
-
-
-
   send(message: any) {
     logger.info('+++> rpc inner send', message);
-    if(!this.stream) {
-      throw new Error('RPC service is not ready yet.')
+    if (!this.stream) {
+      throw new Error('RPC service is not ready yet.');
     }
-    this.stream.write(JSON.stringify(message))
+    this.stream.write(JSON.stringify(message));
   }
 
   stop() {
-    if(!this.stream) {
-      throw new Error('RPC service is not running.')
+    if (!this.stream) {
+      throw new Error('RPC service is not running.');
     }
-    this.server.close()
+    this.server.close();
   }
 }
 export default RPCServer;

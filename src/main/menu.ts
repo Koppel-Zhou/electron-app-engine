@@ -290,6 +290,7 @@ export default class MenuBuilder {
           {
             label: 'Undefined',
             click() {
+              // eslint-disable-next-line no-undef
               mainUndefined();
             },
           },

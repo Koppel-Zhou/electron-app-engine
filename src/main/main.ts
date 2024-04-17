@@ -14,7 +14,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import { init as initSentry } from '../common/sentry';
+import initSentry from '../common/sentry';
 import RPCServer from '../common/NamedPipe/server';
 import RPCClient from '../common/NamedPipe/client';
 
@@ -22,30 +22,36 @@ const PIPE_PATH = path.join('\\\\?\\pipe', 'ENGINE');
 initSentry();
 
 app.on('ready', () => {
-  console.log(`process.env.PIPE_PATH is ${process.env.PIPE_PATH}`)
+  console.log(`process.env.PIPE_PATH is ${process.env.PIPE_PATH}`);
   if (process.env.PORT === '8888') {
-    let RPC_SERVER = new RPCServer(PIPE_PATH);
-    RPC_SERVER.on('message', (message) => {
-      console.log('Get message From Client:', message);
-    }).on('error', (error) => {
-      console.log('NamedPipe Server Error:', error);
-    }).on('end', () => {
-      console.log('NamedPipe Server End...');
-    })
-    ipcMain.on('namedpipe-send', async (event, arg) => {
-      RPC_SERVER.send({a: {}, b: 2, c: '3' });
+    const rpcServer = new RPCServer(PIPE_PATH);
+    rpcServer
+      .on('message', (message) => {
+        console.log('Get message From Client:', message);
+      })
+      .on('error', (error) => {
+        console.log('NamedPipe Server Error:', error);
+      })
+      .on('end', () => {
+        console.log('NamedPipe Server End...');
+      });
+    ipcMain.on('namedpipe-send', async () => {
+      rpcServer.send({ a: {}, b: 2, c: '3' });
     });
   } else {
-    let RPC_Client = new RPCClient(PIPE_PATH);
-    RPC_Client.on('message', (message) => {
-      console.log('Get message From Client:', message);
-    }).on('error', (error) => {
-      console.log('NamedPipe Server Error:', error);
-    }).on('end', () => {
-      console.log('NamedPipe Server End...');
-    })
-    ipcMain.on('namedpipe-send', async (event, arg) => {
-      RPC_Client.send('get.reply', {a: 1, b: '2', c: []});
+    const rpcClient = new RPCClient(PIPE_PATH);
+    rpcClient
+      .on('message', (message) => {
+        console.log('Get message From Client:', message);
+      })
+      .on('error', (error) => {
+        console.log('NamedPipe Server Error:', error);
+      })
+      .on('end', () => {
+        console.log('NamedPipe Server End...');
+      });
+    ipcMain.on('namedpipe-send', async () => {
+      rpcClient.send('get.reply', { a: 1, b: '2', c: [] });
     });
   }
 });

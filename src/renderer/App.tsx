@@ -9,16 +9,37 @@ function Hello() {
         <img width="200" alt="icon" src={icon} />
       </div>
       <h1>electron-app-engine</h1>
-      <button onClick={() => { throw new Error('test throw in renderer') }}>
+      <button
+        type="button"
+        onClick={() => {
+          throw new Error('test throw in renderer');
+        }}
+      >
         test throw in renderer
       </button>
-      <button onClick={() => { rendererUndefined() }}>
+      <button
+        type="button"
+        onClick={() => {
+          // eslint-disable-next-line no-undef
+          rendererUndefined();
+        }}
+      >
         rendererUndefined
       </button>
-      <button onClick={() => { process.crash() }}>
+      <button
+        type="button"
+        onClick={() => {
+          process.crash();
+        }}
+      >
         rendererCrash
       </button>
-      <button onClick={() => { window.electron.ipcRenderer.sendMessage('namedpipe-send')}}>
+      <button
+        type="button"
+        onClick={() => {
+          window.electron.ipcRenderer.sendMessage('namedpipe-send');
+        }}
+      >
         NamedPipe Send
       </button>
     </div>

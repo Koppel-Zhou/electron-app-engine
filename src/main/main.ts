@@ -8,6 +8,7 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
+import * as Sentry from '@sentry/electron';
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
@@ -124,6 +125,11 @@ const createWindow = async () => {
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {
+    Sentry.setUser({
+      id: '123',
+      username: 'test',
+      email: 'test@example.com',
+    });
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }

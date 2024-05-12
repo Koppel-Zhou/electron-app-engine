@@ -1,0 +1,43 @@
+.settings {
+  width: 100%;
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.sidebar {
+  min-width: 100px;
+  background-color: rgba(255, 255, 255, 0.6);
+  height: 100vh;
+}
+
+.sideitem {
+  padding: 4px 12px;
+}
+
+.sideitem a {
+  color: #FFFFFF;
+}
+
+.sideitem:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.title {
+  margin: 0;
+  padding: 4px 12px;
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.params, .result, .performance {
+  padding: 6px 12px;
+  flex: 1;
+  font-size: 14px;
+}

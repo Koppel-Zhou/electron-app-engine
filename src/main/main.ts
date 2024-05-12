@@ -16,16 +16,17 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import initSentry from '../common/sentry';
-import RPCServer from '../common/NamedPipe/server';
-import RPCClient from '../common/NamedPipe/client';
+import PipeServer from '../common/NamedPipe/server';
+import PipeClient from '../common/NamedPipe/client';
+import RPCServer from '../common/JSONRPC/server';
 
 const PIPE_PATH = path.join('\\\\?\\pipe', 'ENGINE');
 initSentry();
 
 app.on('ready', () => {
-  console.log(`process.env.PIPE_PATH is ${process.env.PIPE_PATH}`);
+  RPCServer.start();
   if (process.env.PORT === '8888') {
-    const rpcServer = new RPCServer(PIPE_PATH);
+    const rpcServer = new PipeServer(PIPE_PATH);
     rpcServer
       .on('message', (message) => {
         console.log('Get message From Client:', message);
@@ -40,7 +41,7 @@ app.on('ready', () => {
       rpcServer.send({ a: {}, b: 2, c: '3' });
     });
   } else {
-    const rpcClient = new RPCClient(PIPE_PATH);
+    const rpcClient = new PipeClient(PIPE_PATH);
     rpcClient
       .on('message', (message) => {
         console.log('Get message From Client:', message);

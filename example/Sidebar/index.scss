@@ -1,0 +1,17 @@
+.sidebar {
+  min-width: 100px;
+  background-color: rgba(255, 255, 255, 0.4);
+  height: 100vh;
+}
+
+.sideitem {
+  padding: 4px 12px;
+}
+
+.sideitem a {
+  color: #FFFFFF;
+}
+
+.sideitem:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}

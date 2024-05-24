@@ -1,5 +1,4 @@
 import { ipcRenderer } from 'electron';
-
 import { method_keys as APP_API } from '../NativeAPI/app';
 
 type MethodSet = {
@@ -7,13 +6,15 @@ type MethodSet = {
 };
 
 const methods: MethodSet = { app: {} };
-APP_API.forEach((method: string) => {
+APP_API.forEach((method) => {
   const app_method = `app.${method}`;
   (methods.app as MethodSet)[method] = (params: any) => {
-    console.log(`[NativeAPI] ${app_method}`, params);
+    console.log(`[NativeAPI] ${app_method}`);
     return ipcRenderer.invoke(
-      'json-rpc-message',
-      JSON.stringify({ method: app_method, params }),
+      'json-ipc-message',
+      app_method,
+      JSON.stringify(params),
+      Date.now(),
     );
   };
 });

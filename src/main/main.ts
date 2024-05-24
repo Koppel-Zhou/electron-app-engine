@@ -18,7 +18,7 @@ import { resolveHtmlPath } from './util';
 import initSentry from '../common/sentry';
 import PipeServer from '../common/NamedPipe/server';
 import PipeClient from '../common/NamedPipe/client';
-import RPCServer from '../common/JSONRPC/server';
+import RPCServer from '../common/IPCProtocol/server';
 
 const PIPE_PATH = path.join('\\\\?\\pipe', 'ENGINE');
 initSentry();

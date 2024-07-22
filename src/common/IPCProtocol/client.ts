@@ -9,7 +9,7 @@ const methods: MethodSet = { app: {} };
 APP_API.forEach((method) => {
   const app_method = `app.${method}`;
   (methods.app as MethodSet)[method] = (params: any) => {
-    console.log(`[NativeAPI] ${app_method}`);
+    console.log(`[NativeAPI] Call ${app_method} with params: ${params}`);
     return ipcRenderer.invoke(
       'json-ipc-message',
       app_method,

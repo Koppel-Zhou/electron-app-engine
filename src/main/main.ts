@@ -16,46 +16,15 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import initSentry from '../common/sentry';
-import PipeServer from '../common/NamedPipe/server';
-import PipeClient from '../common/NamedPipe/client';
+import initTray from './tray';
+import { init as initNamedPipeExample } from '../common/NamedPipe/example';
 import RPCServer from '../common/IPCProtocol/server';
 
-const PIPE_PATH = path.join('\\\\?\\pipe', 'ENGINE');
 initSentry();
 
 app.on('ready', () => {
   RPCServer.start();
-  if (process.env.PORT === '8888') {
-    const rpcServer = new PipeServer(PIPE_PATH);
-    rpcServer
-      .on('message', (message) => {
-        console.log('Get message From Client:', message);
-      })
-      .on('error', (error) => {
-        console.log('NamedPipe Server Error:', error);
-      })
-      .on('end', () => {
-        console.log('NamedPipe Server End...');
-      });
-    ipcMain.on('namedpipe-send', async () => {
-      rpcServer.send({ a: {}, b: 2, c: '3' });
-    });
-  } else {
-    const rpcClient = new PipeClient(PIPE_PATH);
-    rpcClient
-      .on('message', (message) => {
-        console.log('Get message From Client:', message);
-      })
-      .on('error', (error) => {
-        console.log('NamedPipe Server Error:', error);
-      })
-      .on('end', () => {
-        console.log('NamedPipe Server End...');
-      });
-    ipcMain.on('namedpipe-send', async () => {
-      rpcClient.send('get.reply', { a: 1, b: '2', c: [] });
-    });
-  }
+  initNamedPipeExample();
 });
 class AppUpdater {
   constructor() {
@@ -174,7 +143,10 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(() => {
+    const processId = process.pid;
+    log.info(`主进程的进程ID是: ${processId}`);
     createWindow();
+    initTray();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.

@@ -2,21 +2,20 @@ import { SetStateAction, useState } from 'react';
 
 import './index.scss';
 
-function MoudleButton({ prefix, set, setResult }) {
+function MoudleButton({ prefix, set, setApi }) {
   return (
     <>
       {Object.keys(set).map((key) => {
         return set[key] instanceof Function ? (
-          <li
-            className="sideitem"
-            onClick={() =>
-              set[key]().then((res: SetStateAction<string>) => setResult(res))
-            }
-          >
+          <li className="sideitem" onClick={() => setApi(`${prefix}.${key}`)}>
             {prefix}.{key}
           </li>
         ) : (
-          <MoudleButton setResult={setResult} prefix={`${prefix}.${key}`} set={set[key]} />
+          <MoudleButton
+            setApi={setApi}
+            prefix={`${prefix}.${key}`}
+            set={set[key]}
+          />
         );
       })}
     </>
@@ -26,20 +25,43 @@ function MoudleButton({ prefix, set, setResult }) {
 function Settings() {
   const [result, setResult] = useState('');
   const [params, setParams] = useState('');
-  // const [time, setTime] = useState('');
-  console.log('>>>>>>', result);
+  const [api, setApi] = useState(() => {});
   return (
     <div className="settings">
       <ul className="sidebar">
-        <MoudleButton setResult={setResult} prefix="native" set={native} />
+        <MoudleButton setApi={setApi} prefix="native" set={native} />
       </ul>
       <div className="panel">
         <p className="title">Params</p>
-        <textarea value={params} onChange={(e) => setParams(e.target.value)} className="params" />
+        <textarea
+          value={params}
+          onChange={(e) => setParams(e.target.value)}
+          className="params"
+        />
+        <button
+          onClick={() => {
+            const keys = api.split('.').slice(1);
+            const fun = keys.reduce((pre, cur) => {
+              return pre[cur];
+            }, native);
+            if (fun instanceof Function) {
+              fun().then((res: SetStateAction<string>) => setResult(res));
+            } else {
+              alert('Please choose API');
+            }
+          }}
+          className="title"
+        >
+          Call
+        </button>
         <p className="title">Result</p>
-        <textarea value={result ? JSON.stringify(result) : ''} disabled className="result" />
+        <textarea
+          value={result ? JSON.stringify(result) : ''}
+          disabled
+          className="result"
+        />
         <p className="title">Performance</p>
-        <p className="performance"></p>
+        <p className="performance" />
       </div>
     </div>
   );

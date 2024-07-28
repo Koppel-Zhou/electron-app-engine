@@ -24,7 +24,8 @@ const configuration: webpack.Configuration = {
 
   entry: {
     main: path.join(webpackPaths.srcMainPath, 'main.ts'),
-    preload: path.join(webpackPaths.srcMainPath, 'preload.ts'),
+    ['main.preload']: path.join(webpackPaths.srcPreloadPath, 'main.ts'),
+    ['worker.preload']: path.join(webpackPaths.srcPreloadPath, 'worker.ts'),
   },
 
   output: {

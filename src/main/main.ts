@@ -13,12 +13,14 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import WindowMG from './WindowManager';
 import MenuBuilder from './menu';
-import { resolveHtmlPath } from './util';
+import { resolveHtmlPath } from '../utils';
 import initSentry from '../common/sentry';
 import initTray from './tray';
 import { init as initNamedPipeExample } from '../common/NamedPipe/example';
 import RPCServer from '../common/IPCProtocol/server';
+import { registerWorkerBeforeAllWidow } from '../common/MPConnect';
 
 initSentry();
 
@@ -80,19 +82,19 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
-  mainWindow = new BrowserWindow({
-    show: false,
+  await registerWorkerBeforeAllWidow();
+
+  mainWindow = WindowMG.createWindow('main', resolveHtmlPath('index.html'), {
+    show: false, 
     width: 1024,
     height: 728,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged
-        ? path.join(__dirname, 'preload.js')
-        : path.join(__dirname, '../../.engine/dll/preload.js'),
+        ? path.join(__dirname, 'main.preload.js')
+        : path.join(__dirname, '../../.engine/dll/main.preload.js'),
     },
-  });
-
-  mainWindow.loadURL(resolveHtmlPath('index.html'));
+  })
 
   mainWindow.on('ready-to-show', () => {
     Sentry.setUser({

@@ -9,7 +9,7 @@ import { ipcRenderer } from 'electron';
 const portMap = new Map();
 // 我们可能会得到多个 clients, 比如有多个 windows,
 // 或者假如 main window 重新加载了.
-ipcRenderer.on('new-client', (event, id) => {
+ipcRenderer.on('__register-worker-port__', (event, id) => {
   const [port] = event.ports;
   portMap.set(id, port);
   port.onmessage = event => {

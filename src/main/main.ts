@@ -116,6 +116,17 @@ const createWindow = async () => {
     mainWindow = null;
   });
 
+  WindowMG.createWindow('baidu', 'https://www.baidu.com/', {
+    show: true, 
+    width: 1024,
+    height: 728,
+    webPreferences: {
+      preload: app.isPackaged
+        ? path.join(__dirname, 'main.preload.js')
+        : path.join(__dirname, '../../.engine/dll/main.preload.js'),
+    },
+  })
+
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 

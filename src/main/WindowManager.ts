@@ -1,10 +1,11 @@
 import { BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
 
 class WindowManager {
-    private windows: Map<string, BrowserWindow>;
-
+    public windows: Map<string | number, BrowserWindow>;
+    public names: Map<number, string | number>;
     constructor() {
         this.windows = new Map();
+        this.names = new Map();
     }
 
     public createWindow(name: string, url: string, options: BrowserWindowConstructorOptions): BrowserWindow {
@@ -16,8 +17,8 @@ class WindowManager {
 
         window.loadURL(url);
 
-        this.windows.set(name, window);
-
+        this.windows.set(name || window.id, window);
+        this.names.set(window.id, name || window.id);
         window.on('closed', () => {
             this.windows.delete(name);
         });
@@ -25,8 +26,16 @@ class WindowManager {
         return window;
     }
 
-    public getWindow(name: string): BrowserWindow | undefined {
+    public getWindowByName(name: string): BrowserWindow | undefined {
         return this.windows.get(name);
+    }
+
+    public getWindowNameById(id: number): string | number {
+        return this.names.get(id);
+    }
+
+    public getWindowById(id: number): BrowserWindow | undefined {
+        return this.windows.get(this.getWindowNameById(id));
     }
 
     public closeAllWindows(): void {

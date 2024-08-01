@@ -1,3 +1,18 @@
+export const MAIN_WORLD_NAME = 'WORKER_PORT';
+
+export const EVENT = {
+  REGISTER: '__WORKER_PORT_REGISTER__',
+  INIT_BRIDGE: '__WORKER_PORT_INIT_BRIDGE__',
+  SET_WINDOW_NAME: '__WORKER_PORT_SET_WINDOW_NAME__',
+  QUESTION: '__WORKER_PORT_QUESTION__',
+  ANSWER: '__WORKER_PORT_ANSWER__',
+};
+
+export const REPEATER = {
+  IPC: '__IPC__',
+  MP: '__MESSAGE_PORT__',
+};
+
 export const ERROR = {
     // PARSE_ERROR 调用过程不使用JSON序列化与反序列化，不需要
     PARSE_ERROR: { code: -32700, message: 'Parse error', data: null },

@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron';
+import { EVENT } from '../common/MPConnect/constants';
 
 // MessagePort 对象可以在渲染器或主进程中创建，
 // 并使用 [ipcRenderer.postMessage][] 和 [WebContents.postMessage][] 方法互相传递。
@@ -9,7 +10,7 @@ import { ipcRenderer } from 'electron';
 const portMap = new Map();
 // 我们可能会得到多个 clients, 比如有多个 windows,
 // 或者假如 main window 重新加载了.
-ipcRenderer.on('__register-worker-port__', (event, id) => {
+ipcRenderer.on(EVENT.REGISTER, (event, id) => {
   const [port] = event.ports;
   portMap.set(id, port);
   port.onmessage = event => {

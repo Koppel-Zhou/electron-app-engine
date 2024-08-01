@@ -3,17 +3,17 @@ import { app, BrowserWindow, ipcMain, IpcMainEvent, MessageChannelMain } from 'e
 import logger from 'electron-log';
 import { resolveHtmlPath } from '../../utils';
 import WindowMG from '../../main/WindowManager';
+import { EVENT, REPEATER } from './constants';
 
 let worker: BrowserWindow | string | null = null;
 
-export async function registerWorkerBeforeAllWidow({ repeater } = { repeater: 'IPC' }) {
+export async function registerWorkerBeforeAllWidow(options: RegisterOptions = {}) {
   // 仅允许注册一次
   if (worker) {
     return;
   }
 
-  const isMP = repeater === 'MESSAGE_PORT';
-  const isIPC = repeater === 'IPC';
+  const isMP = options?.repeater === REPEATER.MP;
 
   if (isMP) {
     worker = new BrowserWindow({
@@ -37,7 +37,7 @@ export async function registerWorkerBeforeAllWidow({ repeater } = { repeater: 'I
   }
 
   // 监听渲染进程请求Worker进程通信频道端口
-  ipcMain.on('__init-bridge__', (event: IpcMainEvent) => {
+  ipcMain.on(EVENT.INIT_BRIDGE, (event: IpcMainEvent) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     const win_id = WindowMG.getWindowNameById(win?.id) || win?.id;
 
@@ -45,19 +45,19 @@ export async function registerWorkerBeforeAllWidow({ repeater } = { repeater: 'I
       // 建立新通道
       const { port1, port2 } = new MessageChannelMain();
       // ... 将其中一个端口发送给 Worker
-      (worker as BrowserWindow).webContents.postMessage('__register-worker-port__', win_id, [port1])
+      (worker as BrowserWindow).webContents.postMessage(EVENT.REGISTER, win_id, [port1])
       // ... 将另一个端口发送给窗口
-      event.senderFrame.postMessage('__set-window-name__', win_id, [port2])
+      event.senderFrame.postMessage(EVENT.SET_WINDOW_NAME, win_id, [port2])
       // 现在窗口和工作进程可以直接相互通信，无需经过主进程！
     } else {
       // 仅注册一次监听事件
       if (!worker) {
-        ipcMain.on('__message__', (event, args) => new Promise<void>((resolve, reject) => {
+        ipcMain.on(EVENT.QUESTION, (event, args) => new Promise<void>((resolve, reject) => {
           const { target } = args;
-          WindowMG.windows.get(target)?.webContents.send('__repeater-message__', args);
+          WindowMG.windows.get(target)?.webContents.send(EVENT.ANSWER, args);
         }));
       }
-      event.sender.send('__set-window-name__', win_id);
+      event.sender.send(EVENT.SET_WINDOW_NAME, win_id);
       worker = 'browser';
     }
   })

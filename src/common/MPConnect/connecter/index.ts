@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
-import { ERROR } from '../constants';
+import { ERROR, EVENT, MAIN_WORLD_NAME } from '../constants';
+import { isValidName } from '../validater';
 
 export function connectWorker() {
   // 注册的远程调用处理器
@@ -9,30 +10,38 @@ export function connectWorker() {
 
   // 请求主进程向加载此preload的窗口发送一个通道
   // 以便此窗口可以用它与 Worker 进程建立通信
-  ipcRenderer.send('__init-bridge__')
+  ipcRenderer.send(EVENT.INIT_BRIDGE)
   
-  ipcRenderer.once('__set-window-name__', (workerEvent: IpcRendererEvent, self_id: string | number) => {
+  ipcRenderer.once(EVENT.SET_WINDOW_NAME, (workerEvent: IpcRendererEvent, self_id: string | number) => {
     const [port] = workerEvent.ports;
     const isMP = !!port;
     const requestMethod = isMP
       ? (message: any) => port.postMessage(message)
-      : (message: any) => ipcRenderer.send('__message__', message);
+      : (message: any) => ipcRenderer.send(EVENT.QUESTION, message);
     const createServer = isMP
       ? (listener: Function) => port.onmessage = event => listener(event.data)
-      : (listener: Function) => ipcRenderer.on('__repeater-message__', (event, data) => listener(data))
+      : (listener: Function) => ipcRenderer.on(EVENT.ANSWER, (event, data) => listener(data))
 
     const WORKER_PORT = {
-      register: (method: string, handler: Function) => {
-        handlers[method] = handler;
+      register: (methods: Handlers) => {
+        Object.keys(methods).forEach(method => {
+          if (handlers[method]) {
+            console.error(`Method name "${method}" has been registered, ignored.`);
+          } else if (isValidName(method)) {
+            handlers[method] = methods[method];
+          } else {
+            console.error(`Invalid method name: ${method}, ignored.`);
+          }
+        })
       },
-      request: async (method: string, params: Object, target: Target, req_timestamp: number) => {
+      request: async ({ method, params, target, req_timestamp }: RequestBody) => {
         let req_id = crypto.randomUUID();
         requestMethod({
           jsonrpc: '2.0',
           method,
           params,
           target,
-          id: self_id,
+          from: self_id,
           req_id,
           req_timestamp: req_timestamp || Date.now(),
         })
@@ -43,13 +52,13 @@ export function connectWorker() {
       }
     }
     if (process.contextIsolated) {
-      contextBridge.exposeInMainWorld('WORKER_PORT', WORKER_PORT);
+      contextBridge.exposeInMainWorld(MAIN_WORLD_NAME, WORKER_PORT);
     } else {
       // @ts-ignore
-      window.WORKER_PORT = WORKER_PORT;
+      window[MAIN_WORLD_NAME] = WORKER_PORT;
     }
 
-    createServer(async (data) => {
+    createServer(async (data: ProtocolRequest | ProtocolResponse) => {
       console.log('>>>>> listener', data)
       const {
         // 作为服务端接收到的请求
@@ -58,7 +67,7 @@ export function connectWorker() {
         // 作为服务端时，target === self_id 为 true
         target,
         // 作为服务端时，id 为请求方的id
-        id,
+        from,
         // 作为客户端接收到的响应
         result,
         error,
@@ -72,8 +81,8 @@ export function connectWorker() {
           return requestMethod({
             jsonrpc: '2.0',
             error: ERROR.METHOD_NOT_FOUND,
-            target: id,
-            id: target,
+            target: from,
+            from: target,
             req_id,
             req_timestamp,
             res_timestamp: Date.now(),
@@ -85,8 +94,8 @@ export function connectWorker() {
           return requestMethod({
             jsonrpc: '2.0',
             result,
-            target: id,
-            id: target,
+            target: from,
+            from: target,
             req_id,
             req_timestamp,
             res_timestamp: Date.now(),
@@ -95,8 +104,8 @@ export function connectWorker() {
           return requestMethod({
             jsonrpc: '2.0',
             error: { ...ERROR.SERVER_ERROR, data: err },
-            target: id,
-            id: target,
+            target: from,
+            from: target,
             req_id,
             req_timestamp,
             res_timestamp: Date.now(),

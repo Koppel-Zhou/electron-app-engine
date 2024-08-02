@@ -1,23 +1,35 @@
 import { ipcRenderer } from 'electron';
-import { method_keys as APP_API } from '../NativeAPI/app';
+import { method_keys as app_method_keys } from '../NativeAPI/app';
 import { EVENT } from '../dictionary';
 
 type MethodSet = {
   [key: string]: Function | MethodSet;
 };
 
-const methods: MethodSet = { app: {} };
-APP_API.forEach((method) => {
-  const app_method = `app.${method}`;
-  (methods.app as MethodSet)[method] = (params: any) => {
-    console.log(`[NativeAPI] Call ${app_method} with params: ${params}`);
-    return ipcRenderer.invoke(
-      EVENT.R2M_MESSAGE,
-      app_method,
-      JSON.stringify(params),
-      Date.now(),
-    );
-  };
-});
+const methods: MethodSet = {};
+
+function register(method_keys: string[]) {
+  method_keys.forEach((method: string) => {
+    const keys = method.split('.');
+    keys.reduce((acc, key, index) => {
+      if (index === keys.length - 1) {
+        acc[key] = (params: any) => {
+          console.log(`[NativeAPI] Call ${method} with params: ${params}`);
+          return ipcRenderer.invoke(
+            EVENT.R2M_MESSAGE,
+            method,
+            JSON.stringify(params),
+            Date.now(),
+          );
+        };
+      } else {
+        acc[key] = acc[key] || {};
+      }
+      return acc[key];
+    }, methods);
+  });
+}
+
+register(app_method_keys);
 
 export default methods;

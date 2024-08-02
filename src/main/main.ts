@@ -19,7 +19,8 @@ import { resolveHtmlPath } from '../utils';
 import initSentry from '../common/sentry';
 import initTray from './tray';
 import { init as initNamedPipeExample } from '../common/NamedPipe/example';
-import RPCServer from '../common/IPCProtocol/server';
+import r2mHandlersRegister from '../common/IPCProtocol/server';
+import { methods as app_methods } from '../common/NativeAPI/app';
 import { registerWorkerBeforeAllWidow } from '../common/MPConnect';
 
 initSentry();
@@ -152,9 +153,9 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(() => {
-    const processId = process.pid;
-    log.info(`主进程的进程ID是: ${processId}`);
-    RPCServer.start();
+    const process_id = process.pid;
+    log.info(`主进程的进程ID是: ${process_id}`);
+    r2mHandlersRegister(app_methods);
     initNamedPipeExample();
     createWindow();
     initTray();

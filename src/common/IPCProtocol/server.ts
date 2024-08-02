@@ -1,20 +1,7 @@
 import { IpcMainInvokeEvent, ipcMain } from 'electron';
-import {
-  method_keys as app_methods_keys,
-  methods as app_methods,
-} from '../NativeAPI/app';
 import { ERROR, EVENT } from '../dictionary';
 
-interface Methods {
-  [key: string]: Function;
-}
-
-const methods: Methods = {};
-
-app_methods_keys.forEach((method) => {
-  const app_method = `app.${method}`;
-  methods[app_method] = app_methods[method];
-});
+const r2mHandlers: Handlers = {};
 
 const ipcHandler = (
   _event: IpcMainInvokeEvent,
@@ -23,7 +10,7 @@ const ipcHandler = (
   req_timestamp: number,
 ) => {
   try {
-    const method_func = methods[method];
+    const method_func = r2mHandlers[method];
 
     if (!(method_func instanceof Function)) {
       return {
@@ -46,7 +33,7 @@ const ipcHandler = (
       };
     }
 
-    const result = methods[method](params_obj);
+    const result = r2mHandlers[method](params_obj);
 
     return {
       jsonrpc: '2.0',
@@ -64,10 +51,10 @@ const ipcHandler = (
   }
 };
 
-const start = () => {
-  ipcMain.handle(EVENT.R2M_MESSAGE, ipcHandler);
-};
+ipcMain.handle(EVENT.R2M_MESSAGE, ipcHandler);
 
-export default {
-  start,
-};
+export default function register(handlers: Handlers) {
+  Object.keys(handlers).forEach((method_key) => {
+    r2mHandlers[method_key] = handlers[method_key];
+  });
+}

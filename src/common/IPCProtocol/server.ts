@@ -3,13 +3,7 @@ import {
   method_keys as app_methods_keys,
   methods as app_methods,
 } from '../NativeAPI/app';
-import {
-  INTERNAL_ERROR,
-  INVALID_PARAMS,
-  METHOD_NOT_FOUND,
-  PARSE_ERROR,
-} from './error';
-import { IPCError, IPCResponse } from './tools';
+import { ERROR, EVENT } from '../dictionary';
 
 interface Methods {
   [key: string]: Function;
@@ -22,41 +16,56 @@ app_methods_keys.forEach((method) => {
   methods[app_method] = app_methods[method];
 });
 
-const ipcHandler: (
-  event: IpcMainInvokeEvent,
-  method: string,
-  params: string,
-  req_timestamp: number,
-) => IPCError | IPCResponse = (
+const ipcHandler = (
   _event: IpcMainInvokeEvent,
   method: string,
   params: string,
-  _req_timestamp: number,
+  req_timestamp: number,
 ) => {
   try {
     const method_func = methods[method];
 
     if (!(method_func instanceof Function)) {
-      return new IPCError(METHOD_NOT_FOUND);
+      return {
+        jsonrpc: '2.0',
+        error: ERROR.METHOD_NOT_FOUND,
+        req_timestamp,
+        res_timestamp: Date.now(),
+      };
     }
     let params_obj = {};
 
     try {
       params_obj = typeof params === 'string' ? JSON.parse(params) : params;
     } catch (e) {
-      return new IPCError(PARSE_ERROR);
+      return {
+        jsonrpc: '2.0',
+        error: ERROR.PARSE_ERROR,
+        req_timestamp,
+        res_timestamp: Date.now(),
+      };
     }
 
     const result = methods[method](params_obj);
 
-    return new IPCResponse(result);
+    return {
+      jsonrpc: '2.0',
+      result,
+      req_timestamp,
+      res_timestamp: Date.now(),
+    };
   } catch (e) {
-    return new IPCError(INTERNAL_ERROR);
+    return {
+      jsonrpc: '2.0',
+      error: ERROR.SERVER_ERROR,
+      req_timestamp,
+      res_timestamp: Date.now(),
+    };
   }
 };
 
 const start = () => {
-  ipcMain.handle('json-ipc-message', ipcHandler);
+  ipcMain.handle(EVENT.R2M_MESSAGE, ipcHandler);
 };
 
 export default {

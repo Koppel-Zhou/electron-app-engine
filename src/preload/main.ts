@@ -1,17 +1,15 @@
 import { contextBridge } from 'electron';
 import methods from '../common/IPCProtocol/client';
-import { connectWorker } from '../common/MPConnect/connecter';
-declare global {
-  interface Window {
-    native?: any; // 根据 'methods' 的实际类型替换 'any'
-  }
-}
+import r2rServerConnect from '../common/MPConnect/connecter';
+import { R2M_MAIN_WORLD_NAME } from '../common/dictionary';
+
 document.addEventListener('DOMContentLoaded', () => {
-  connectWorker();
-})
+  r2rServerConnect();
+});
 
 if (process.contextIsolated) {
-  contextBridge.exposeInMainWorld('native', methods);
+  contextBridge.exposeInMainWorld(R2M_MAIN_WORLD_NAME, methods);
 } else {
-  window.native = methods;
+  // @ts-ignore
+  window[R2M_MAIN_WORLD_NAME] = methods;
 }

@@ -24,10 +24,6 @@ import { registerWorkerBeforeAllWidow } from '../common/MPConnect';
 
 initSentry();
 
-app.on('ready', () => {
-  RPCServer.start();
-  initNamedPipeExample();
-});
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
@@ -85,7 +81,7 @@ const createWindow = async () => {
   await registerWorkerBeforeAllWidow();
 
   mainWindow = WindowMG.createWindow('main', resolveHtmlPath('index.html'), {
-    show: false, 
+    show: false,
     width: 1024,
     height: 728,
     icon: getAssetPath('icon.png'),
@@ -117,7 +113,7 @@ const createWindow = async () => {
   });
 
   WindowMG.createWindow('baidu', 'https://www.baidu.com/', {
-    show: true, 
+    show: true,
     width: 1024,
     height: 728,
     webPreferences: {
@@ -158,6 +154,8 @@ app
   .then(() => {
     const processId = process.pid;
     log.info(`主进程的进程ID是: ${processId}`);
+    RPCServer.start();
+    initNamedPipeExample();
     createWindow();
     initTray();
     app.on('activate', () => {

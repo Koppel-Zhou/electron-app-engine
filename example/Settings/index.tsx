@@ -29,7 +29,7 @@ function Settings() {
   return (
     <div className="settings">
       <ul className="sidebar">
-        <MoudleButton setApi={setApi} prefix="native" set={native} />
+        <MoudleButton setApi={setApi} prefix="IPC_R2M" set={IPC_R2M} />
       </ul>
       <div className="panel">
         <p className="title">Params</p>
@@ -43,7 +43,7 @@ function Settings() {
             const keys = api.split('.').slice(1);
             const fun = keys.reduce((pre, cur) => {
               return pre[cur];
-            }, native);
+            }, IPC_R2M);
             if (fun instanceof Function) {
               fun().then((res: SetStateAction<string>) => setResult(res));
             } else {

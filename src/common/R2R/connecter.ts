@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
-import { ERROR, EVENT, R2R_MAIN_WORLD_NAME } from '../../dictionary';
-import { isValidName } from '../../validater';
+import { ERROR, EVENT, R2R_MAIN_WORLD_NAME } from '../dictionary';
+import { isValidName } from '../validater';
 
 export default function connect() {
   // 注册的远程调用处理器

@@ -19,9 +19,9 @@ import { resolveHtmlPath } from '../utils';
 import initSentry from '../common/sentry';
 import initTray from './tray';
 import { init as initNamedPipeExample } from '../common/NamedPipe/example';
-import r2mHandlersRegister from '../common/IPCProtocol/server';
+import r2mHandlersRegister from '../common/R2M/server';
 import { methods as app_methods } from '../common/NativeAPI/app';
-import { registerWorkerBeforeAllWidow } from '../common/MPConnect';
+import { registerWorkerBeforeAllWidow } from '../common/R2R';
 
 initSentry();
 

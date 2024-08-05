@@ -21,7 +21,8 @@ import initTray from './tray';
 import { init as initNamedPipeExample } from '../common/NamedPipe/example';
 import r2mHandlersRegister from '../common/R2M/server';
 import { methods as app_methods } from '../common/NativeAPI/app';
-import { registerWorkerBeforeAllWidow } from '../common/R2R';
+import r2rBridgeInit from '../common/R2R/bridge';
+import { R2R_REPEATER_TYPE } from '../common/dictionary';
 
 initSentry();
 
@@ -79,7 +80,7 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
-  await registerWorkerBeforeAllWidow();
+  await r2rBridgeInit({ repeater: R2R_REPEATER_TYPE.MP });
 
   mainWindow = WindowMG.createWindow('main', resolveHtmlPath('index.html'), {
     show: false,

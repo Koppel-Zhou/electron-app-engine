@@ -44,7 +44,7 @@ const ipcHandler = (
   } catch (e) {
     return {
       jsonrpc: '2.0',
-      error: ERROR.SERVER_ERROR,
+      error: {...ERROR.SERVER_ERROR, data: e},
       req_timestamp,
       res_timestamp: Date.now(),
     };

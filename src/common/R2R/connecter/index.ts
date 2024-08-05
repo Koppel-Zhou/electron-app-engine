@@ -70,7 +70,6 @@ export default function connect() {
       }
 
       createServer(async (data: ProtocolRequest | ProtocolResponse) => {
-        console.log('>>>>> listener', data);
         const {
           // 作为服务端接收到的请求
           method,

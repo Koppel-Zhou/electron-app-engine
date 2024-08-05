@@ -1,6 +1,7 @@
 export const EVENT = {
   R2M_MESSAGE: '__R2M_MESSAGE__',
   R2R_REGISTER: '__R2R_REGISTER__',
+  R2R_UNREGISTER: '__R2R_UNREGISTER__',
   R2R_INIT_BRIDGE: '__R2R_INIT_BRIDGE__',
   R2R_SET_WINDOW_NAME: '__R2R_SET_WINDOW_NAME__',
   R2R_QUESTION: '__R2R_QUESTION__',
@@ -8,8 +9,8 @@ export const EVENT = {
 };
 
 export const R2R_REPEATER_TYPE = {
-  IPC: '__IPC__',
-  MP: '__MESSAGE_PORT__',
+  IPC: '__IPC_REPEATER__',
+  MP: '__MESSAGE_PORT_REPEATER__',
 };
 
 export const ERROR = {
@@ -26,6 +27,7 @@ export const ERROR = {
   // -32000 to -32099, 预留用于自定义的服务器错误。
   // try catch 块的 catch 调用
   SERVER_ERROR: { code: -32000, message: 'Server error', data: null },
+  TARGET_NOT_FOUND: { code: -32001, message: 'Server error', data: 'Target window not found.' },
 };
 export const R2R_MAIN_WORLD_NAME = 'IPC_R2R';
 export const R2M_MAIN_WORLD_NAME = 'IPC_R2M';

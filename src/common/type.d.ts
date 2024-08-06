@@ -3,7 +3,7 @@ type Handlers = {
 };
 
 type Callbacks = {
-  [key: string]: [Function, Function];
+  [key: string]: [Function, Function] | null;
 };
 
 type MethodSet = {
@@ -19,14 +19,14 @@ type Target = string | number | Array<string | number>;
 type RequestBody = {
   method: string;
   params: Object;
-  target: Target;
+  target?: Target;
   req_id?: string;
   req_timestamp: number;
 };
 type ResponseBody = {
   jsonrpc: string;
   result?: any;
-  error: Object;
+  error?: Object;
   req_id: string;
   req_timestamp: number;
   res_timestamp: number;

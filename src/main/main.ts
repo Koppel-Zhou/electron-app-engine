@@ -157,6 +157,7 @@ app
     const process_id = process.pid;
     log.info(`主进程的进程ID是: ${process_id}`);
     r2mHandlersRegister(app_methods);
+    r2mHandlersRegister({ '12': (num) => num * num });
     initNamedPipeExample();
     createWindow();
     initTray();

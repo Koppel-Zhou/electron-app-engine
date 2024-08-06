@@ -5,7 +5,7 @@ import {
   BrowserWindow,
   MenuItemConstructorOptions,
 } from 'electron';
-import { request } from '../common/M2R/client';
+import request from '../common/M2R/client';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -208,7 +208,9 @@ export default class MenuBuilder {
               params: 1,
               target: 'main',
               req_timestamp: Date.now(),
-            }).then(require('electron-log').info);
+            })
+              .then(require('electron-log').info)
+              .catch(require('electron-log').error);
           },
         },
       ],
@@ -339,7 +341,9 @@ export default class MenuBuilder {
                 params: 4,
                 target: 'main',
                 req_timestamp: Date.now(),
-              }).then(require('electron-log').info).catch(require('electron-log').error);
+              })
+                .then(require('electron-log').info)
+                .catch(require('electron-log').error);
             },
           },
         ],

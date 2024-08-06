@@ -1,73 +1,73 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { method_keys as app_method_keys } from '../NativeAPI/app';
-import { EVENT, R2M_MAIN_WORLD_NAME } from '../dictionary';
+import { ERROR, EVENT, R2M_MAIN_WORLD_NAME } from '../dictionary';
 
 export default function register() {
   const methods: MethodSet = {};
 
+  async function realCall({ method, params, req_timestamp }: RequestBody) {
+    return new Promise((resolve, reject) => {
+      const req_time = req_timestamp || Date.now();
+      const req_id = crypto.randomUUID();
+      console.log(`[NativeAPI] Call ${method} with params: ${params}`);
+      ipcRenderer
+        .invoke(EVENT.R2M_MESSAGE, {
+          method,
+          params,
+          req_id,
+          req_timestamp: req_time,
+        })
+        .then((response) => {
+          const {
+            result,
+            error,
+            req_id: res_req_id,
+            req_timestamp: res_req_time,
+            res_timestamp,
+          } = response;
+          if (result) {
+            resolve({
+              result,
+              req_id: res_req_id,
+              req_timestamp: res_req_time,
+              res_timestamp,
+            });
+          }
+          if (error) {
+            // eslint-disable-next-line prefer-promise-reject-errors
+            reject({
+              error,
+              req_id: res_req_id,
+              req_timestamp: res_req_time,
+              res_timestamp,
+            });
+          }
+          return 0;
+        })
+        .catch((e) => {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject({
+            error: { ...ERROR.SERVER_ERROR, data: e },
+            req_id,
+            req_timestamp: req_time,
+            res_timestamp: Date.now(),
+          });
+        });
+    });
+  }
+
   // 调用方式一
   const $ = async ({ method, params, req_timestamp }: RequestBody) => {
-    console.log(`[NativeAPI] Call ${method} with params: ${params}`);
-    const response = await ipcRenderer.invoke(
-      EVENT.R2M_MESSAGE,
-      method,
-      params,
-      // JSON.stringify(params),
-      req_timestamp || Date.now(),
-    );
-
-    const {
-      result,
-      error,
-      req_timestamp: res_req_time,
-      res_timestamp,
-    } = response;
-    if (result) {
-      return Promise.resolve({
-        result,
-        req_timestamp: res_req_time,
-        res_timestamp,
-      });
-    }
-    if (error) {
-      return Promise.reject({
-        error,
-        req_timestamp: res_req_time,
-        res_timestamp,
-      });
-    }
+    return realCall({ method, params, req_timestamp });
   };
 
-  function registerMethods(method_keys: string[]) {
+  function exportMethods(method_keys: string[]) {
     method_keys.forEach((method: string) => {
       const keys = method.split('.');
       keys.reduce((acc, key, index) => {
         if (index === keys.length - 1) {
-          acc[key] = async (params: any) => {
-            console.log(`[NativeAPI] Call ${method} with params: ${params}`);
-            const response = await ipcRenderer.invoke(
-              EVENT.R2M_MESSAGE,
-              method,
-              params,
-              // JSON.stringify(params),
-              Date.now(),
-            );
-
-            const { result, error, req_timestamp, res_timestamp } = response;
-            if (result) {
-              return Promise.resolve({
-                result,
-                req_timestamp,
-                res_timestamp,
-              });
-            }
-            if (error) {
-              return Promise.reject({
-                error,
-                req_timestamp,
-                res_timestamp,
-              });
-            }
+          acc[key] = async (params: any, req_timestamp: number) => {
+            return realCall({ method, params, req_timestamp });
           };
         } else {
           acc[key] = acc[key] || {};
@@ -77,7 +77,7 @@ export default function register() {
     });
   }
 
-  registerMethods(app_method_keys);
+  exportMethods(app_method_keys);
 
   if (process.contextIsolated) {
     contextBridge.exposeInMainWorld(R2M_MAIN_WORLD_NAME, {

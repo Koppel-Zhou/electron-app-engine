@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import { ERROR, EVENT, R2R_MAIN_WORLD_NAME } from '../dictionary';
-import { isValidName } from '../validater';
+import { answer, callValidater, isValidName, registerValidater } from '../validater';
 
 export default function connect() {
   // 注册的远程调用处理器
@@ -28,17 +28,7 @@ export default function connect() {
 
       const WORKER_PORT = {
         register: (methods: Handlers) => {
-          Object.keys(methods).forEach((method) => {
-            if (handlers[method]) {
-              console.error(
-                `Method name "${method}" has been registered, ignored.`,
-              );
-            } else if (isValidName(method)) {
-              handlers[method] = methods[method];
-            } else {
-              console.error(`Invalid method name: ${method}, ignored.`);
-            }
-          });
+          registerValidater(methods, handlers);
         },
         request: async ({
           method,
@@ -88,56 +78,66 @@ export default function connect() {
 
         // 作为服务端，响应method调用
         if (method) {
-          if (!handlers[method]) {
-            return requestMethod({
-              jsonrpc: '2.0',
-              error: ERROR.METHOD_NOT_FOUND,
-              target: from,
-              from: target,
-              req_id,
-              req_timestamp,
-              res_timestamp: Date.now(),
-            });
-          }
+          const response = await callValidater(data, handlers);
+          requestMethod({
+            ...response,
+            target: from,
+            from: target,
+          });
 
-          try {
-            const res_result = await handlers[method](params);
-            return requestMethod({
-              jsonrpc: '2.0',
-              result: res_result,
-              target: from,
-              from: target,
-              req_id,
-              req_timestamp,
-              res_timestamp: Date.now(),
-            });
-          } catch (err) {
-            return requestMethod({
-              jsonrpc: '2.0',
-              error: { ...ERROR.SERVER_ERROR, data: err },
-              target: from,
-              from: target,
-              req_id,
-              req_timestamp,
-              res_timestamp: Date.now(),
-            });
-          }
+          // if (!handlers[method]) {
+          //   return requestMethod({
+          //     jsonrpc: '2.0',
+          //     error: ERROR.METHOD_NOT_FOUND,
+          //     target: from,
+          //     from: target,
+          //     req_id,
+          //     req_timestamp,
+          //     res_timestamp: Date.now(),
+          //   });
+          // }
+
+          // try {
+          //   const res_result = await handlers[method](params);
+          //   return requestMethod({
+          //     jsonrpc: '2.0',
+          //     result: res_result,
+          //     target: from,
+          //     from: target,
+          //     req_id,
+          //     req_timestamp,
+          //     res_timestamp: Date.now(),
+          //   });
+          // } catch (err) {
+          //   return requestMethod({
+          //     jsonrpc: '2.0',
+          //     error: { ...ERROR.SERVER_ERROR, data: err },
+          //     target: from,
+          //     from: target,
+          //     req_id,
+          //     req_timestamp,
+          //     res_timestamp: Date.now(),
+          //   });
+          // }
         }
 
         // 作为客户端，接收 result/error 并影响给注册者
-        if (result) {
-          callbacks[req_id][0]({
-            result,
-            req_timestamp,
-            res_timestamp,
-          });
-        } else if (error) {
-          callbacks[req_id][1]({
-            error,
-            req_timestamp,
-            res_timestamp,
-          });
+        if (result || error) {
+          answer(data, callbacks);
         }
+        // if (result) {
+        //   callbacks[req_id][0]({
+        //     result,
+        //     req_timestamp,
+        //     res_timestamp,
+        //   });
+        // } else if (error) {
+        //   callbacks[req_id][1]({
+        //     error,
+        //     req_timestamp,
+        //     res_timestamp,
+        //   });
+        // }
       });
     },
   );

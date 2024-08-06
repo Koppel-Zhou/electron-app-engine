@@ -2,26 +2,28 @@ import crypto from 'crypto';
 import { ipcMain } from 'electron';
 import { ERROR, EVENT } from '../dictionary';
 import WindowMG from '../../main/WindowManager';
+import { answer } from '../validater';
 
 const callbacks: Callbacks = {};
 
 ipcMain.on(EVENT.M2R_ANSWER, (event, res: ResponseBody) => {
-  const { req_id, result, error, req_timestamp, res_timestamp } = res;
-  if (result) {
-    callbacks[req_id][0]({ result, req_timestamp, res_timestamp });
-  } else if (error) {
-    callbacks[req_id][1]({ error, req_timestamp, res_timestamp });
-  }
+  answer(res, callbacks);
+  // const { req_id, result, error, req_timestamp, res_timestamp } = res;
+  // if (result) {
+  //   callbacks[req_id][0]({ result, req_timestamp, res_timestamp });
+  // } else if (error) {
+  //   callbacks[req_id][1]({ error, req_timestamp, res_timestamp });
+  // }
 
-  callbacks[req_id] = null;
+  // callbacks[req_id] = null;
 });
 
-export const request = ({
+export default function request({
   method,
   params,
   target,
   req_timestamp,
-}: RequestBody) => {
+}: RequestBody) {
   const req_id = crypto.randomUUID();
   const targetWindow = WindowMG.windows.get(target);
   if (!targetWindow || targetWindow.isDestroyed()) {
@@ -45,4 +47,4 @@ export const request = ({
   return new Promise((resolve, reject) => {
     callbacks[req_id] = [resolve, reject];
   });
-};
+}

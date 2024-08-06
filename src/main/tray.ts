@@ -2,6 +2,7 @@ import { Menu, Tray, app } from 'electron';
 import log from 'electron-log';
 
 import { ICON, ICON_16 } from '../utils/PATHSET';
+import request from '../common/M2R/client';
 
 const init = () => {
   const tray = new Tray(ICON);
@@ -13,7 +14,19 @@ const init = () => {
     { type: 'separator' },
     { label: 'Item5' },
     { label: 'Item6' },
-    { label: 'Item7' },
+    {
+      label: 'Item7',
+      click: () => {
+        request({
+          method: 'add',
+          params: 4,
+          target: 'baidu',
+          req_timestamp: Date.now(),
+        })
+          .then(require('electron-log').info)
+          .catch(require('electron-log').error);
+      },
+    },
     {
       icon: ICON_16,
       label: '退出',

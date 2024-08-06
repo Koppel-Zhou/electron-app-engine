@@ -18,8 +18,8 @@ export default function connect() {
       const [port] = workerEvent.ports;
       const isMP = !!port;
       const requestMethod = isMP
-        ? (message: any) => port.postMessage(message)
-        : (message: any) => ipcRenderer.send(EVENT.R2R_QUESTION, message);
+        ? (message: ProtocolRequest) => port.postMessage(message)
+        : (message: ProtocolRequest) => ipcRenderer.send(EVENT.R2R_QUESTION, message);
       const createServer = isMP
         ? (listener: Function) =>
             (port.onmessage = (event) => listener(event.data))

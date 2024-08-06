@@ -67,7 +67,6 @@ export default async function register(
         ipcMain.on(
           EVENT.R2R_QUESTION,
           (event, args) => {
-            require('electron-log').info('worker receive question', args);
             const { from, target, req_id, req_timestamp } = args;
             let targetWindow = WindowMG.windows.get(target);
             if (!targetWindow || targetWindow.isDestroyed()) {

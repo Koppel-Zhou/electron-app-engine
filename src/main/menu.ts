@@ -5,6 +5,7 @@ import {
   BrowserWindow,
   MenuItemConstructorOptions,
 } from 'electron';
+import { request } from '../common/M2R/client';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -180,6 +181,36 @@ export default class MenuBuilder {
             shell.openExternal('https://github.com/electron/electron/issues');
           },
         },
+        {
+          label: 'Throw Error',
+          click() {
+            throw new Error('test throw in main');
+          },
+        },
+        {
+          label: 'Undefined',
+          click() {
+            // eslint-disable-next-line no-undef
+            mainUndefined();
+          },
+        },
+        {
+          label: 'Crash',
+          click() {
+            process.crash();
+          },
+        },
+        {
+          label: 'Call mainWindow plus method',
+          click() {
+            request({
+              method: 'plus',
+              params: 1,
+              target: 'main',
+              req_timestamp: Date.now(),
+            }).then(require('electron-log').info);
+          },
+        },
       ],
     };
 
@@ -298,6 +329,17 @@ export default class MenuBuilder {
             label: 'Crash',
             click() {
               process.crash();
+            },
+          },
+          {
+            label: 'Call mainWindow plus method',
+            click() {
+              request({
+                method: 'plus',
+                params: 1,
+                target: 'main',
+                req_timestamp: Date.now(),
+              });
             },
           },
         ],

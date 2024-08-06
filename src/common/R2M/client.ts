@@ -2,10 +2,6 @@ import { ipcRenderer } from 'electron';
 import { method_keys as app_method_keys } from '../NativeAPI/app';
 import { EVENT } from '../dictionary';
 
-type MethodSet = {
-  [key: string]: Function | MethodSet;
-};
-
 const methods: MethodSet = {};
 
 function register(method_keys: string[]) {

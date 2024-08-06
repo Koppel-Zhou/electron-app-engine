@@ -1,4 +1,6 @@
 export const EVENT = {
+  M2R_QUESTION: '__M2R_QUESTION__',
+  M2R_ANSWER: '__M2R_ANSWER__',
   R2M_MESSAGE: '__R2M_MESSAGE__',
   R2R_REGISTER: '__R2R_REGISTER__',
   R2R_UNREGISTER: '__R2R_UNREGISTER__',
@@ -31,3 +33,4 @@ export const ERROR = {
 };
 export const R2R_MAIN_WORLD_NAME = 'IPC_R2R';
 export const R2M_MAIN_WORLD_NAME = 'IPC_R2M';
+export const M2R_MAIN_WORLD_NAME = 'IPC_M2R';

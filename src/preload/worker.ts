@@ -15,19 +15,37 @@ ipcRenderer.on(EVENT.R2R_REGISTER, (regEvent, id) => {
   portMap.set(id, port);
   port.onmessage = (event) => {
     const { from, target, req_id, req_timestamp } = event.data;
-    if (!portMap.get(target)) {
-      return portMap.get(from).postMessage({
-        jsonrpc: '2.0',
-        error: ERROR.TARGET_NOT_FOUND,
-        target: from,
-        from: R2R_REPEATER_TYPE.MP,
-        req_id,
-        req_timestamp,
-        res_timestamp: Date.now(),
-      });
+    const isNotice = !req_id;
+    function sendToTarget(t: Target) {
+      if (isNotice && (!portMap.get(t) || t === from)) {
+        return 0;
+      }
+      if (!portMap.get(t)) {
+        return portMap.get(from).postMessage({
+          jsonrpc: '2.0',
+          error: ERROR.TARGET_NOT_FOUND,
+          target: from,
+          from: R2R_REPEATER_TYPE.MP,
+          req_id,
+          req_timestamp,
+          res_timestamp: Date.now(),
+        });
+      }
+      // 事件数据可以是任何可序列化的对象 (事件甚至可以携带其他 MessagePorts 对象!)
+      portMap.get(t).postMessage(event.data);
     }
-    // 事件数据可以是任何可序列化的对象 (事件甚至可以携带其他 MessagePorts 对象!)
-    portMap.get(target).postMessage(event.data);
+
+    if (isNotice) {
+      if (Array.isArray(target)) {
+        target.forEach((t) => sendToTarget(t));
+      } else if (['string', 'number'].includes(typeof target)) {
+        sendToTarget(target);
+      } else {
+        portMap.forEach((_, t) => sendToTarget(t));
+      }
+    } else {
+      sendToTarget(target);
+    }
   };
 });
 

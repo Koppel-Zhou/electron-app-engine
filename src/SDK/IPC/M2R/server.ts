@@ -6,6 +6,14 @@ export default function start() {
   let handlers: Handlers = {};
 
   ipcRenderer.on(EVENT.M2R_QUESTION, async (event, message) => {
+
+    const isNotice = !message?.req_id;
+
+    if (isNotice) {
+      callValidater(message, handlers);
+      return 0;
+    }
+
     const response = await callValidater(message, handlers);
     ipcRenderer.send(EVENT.M2R_ANSWER, response);
     // let result = null;

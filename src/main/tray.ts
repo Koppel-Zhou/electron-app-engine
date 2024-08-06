@@ -2,7 +2,7 @@ import { Menu, Tray, app } from 'electron';
 import log from 'electron-log';
 
 import { ICON, ICON_16 } from '../utils/PATHSET';
-import request from '../SDK/IPC/M2R/client';
+import { request } from '../SDK/IPC/M2R/client';
 
 const init = () => {
   const tray = new Tray(ICON);

@@ -18,7 +18,7 @@ ipcMain.on(EVENT.M2R_ANSWER, (event, res: ResponseBody) => {
   // callbacks[req_id] = null;
 });
 
-export default function request({
+export function request({
   method,
   params,
   target,
@@ -47,4 +47,42 @@ export default function request({
   return new Promise((resolve, reject) => {
     callbacks[req_id] = [resolve, reject];
   });
+}
+
+function noticeTarget({
+  method,
+  params,
+  target,
+  req_timestamp,
+}: RequestBody) {
+  const targetWindow = WindowMG.windows.get(target);
+  if (!targetWindow || targetWindow.isDestroyed()) {
+    console.error(`The target window ${target} is not found.`)
+    return 0;
+  }
+  targetWindow?.webContents.send(EVENT.M2R_QUESTION, {
+    jsonrpc: '2.0',
+    method,
+    params,
+    req_timestamp: req_timestamp || Date.now(),
+  });
+}
+
+export function notice({
+  method,
+  params,
+  target,
+  req_timestamp,
+}: RequestBody) {
+  if (Array.isArray(target)) {
+    target.forEach((win_key) => {
+      noticeTarget({ method, params, target: win_key, req_timestamp });
+    });
+  } else if (['string', 'number'].includes(typeof target)) {
+    noticeTarget({ method, params, target, req_timestamp });
+  } else {
+    WindowMG.names.forEach((win_key) => {
+      noticeTarget({ method, params, target: win_key, req_timestamp });
+    });
+  }
 }

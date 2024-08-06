@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
-import { ERROR, EVENT, R2R_MAIN_WORLD_NAME } from '../dictionary';
-import { answer, callValidater, isValidName, registerValidater } from '../validater';
+import { EVENT, R2R_MAIN_WORLD_NAME } from '../dictionary';
+import { answer, callValidater, registerValidater } from '../validater';
 
 export default function connect() {
   // 注册的远程调用处理器
@@ -20,13 +20,14 @@ export default function connect() {
       const requestMethod = isMP
         ? (message: ProtocolRequest) => port.postMessage(message)
         : (message: ProtocolRequest) => ipcRenderer.send(EVENT.R2R_QUESTION, message);
+      const reply = requestMethod;
       const createServer = isMP
         ? (listener: Function) =>
             (port.onmessage = (event) => listener(event.data))
         : (listener: Function) =>
             ipcRenderer.on(EVENT.R2R_ANSWER, (event, data) => listener(data));
 
-      const WORKER_PORT = {
+      const EXPOSE_PORT = {
         register: (methods: Handlers) => {
           registerValidater(methods, handlers);
         },
@@ -51,12 +52,27 @@ export default function connect() {
             callbacks[req_id] = [resolve, reject];
           });
         },
+        notice: ({
+          method,
+          params,
+          target,
+          req_timestamp,
+        }: RequestBody) => {
+          requestMethod({
+            jsonrpc: '2.0',
+            method,
+            params,
+            target,
+            from: self_id,
+            req_timestamp: req_timestamp || Date.now(),
+          })
+        },
       };
       if (process.contextIsolated) {
-        contextBridge.exposeInMainWorld(R2R_MAIN_WORLD_NAME, WORKER_PORT);
+        contextBridge.exposeInMainWorld(R2R_MAIN_WORLD_NAME, EXPOSE_PORT);
       } else {
         // @ts-ignore
-        window[R2R_MAIN_WORLD_NAME] = WORKER_PORT;
+        window[R2R_MAIN_WORLD_NAME] = EXPOSE_PORT;
       }
 
       createServer(async (data: ProtocolRequest | ProtocolResponse) => {
@@ -79,7 +95,12 @@ export default function connect() {
         // 作为服务端，响应method调用
         if (method) {
           const response = await callValidater(data, handlers);
-          requestMethod({
+          const isNotice = !req_id;
+          if (isNotice) {
+            return 0;
+          }
+
+          reply({
             ...response,
             target: from,
             from: target,

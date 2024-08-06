@@ -79,13 +79,15 @@ export default function register() {
 
   exportMethods(app_method_keys);
 
+  const method_set = {
+    $,
+    ...methods,
+  }
+
   if (process.contextIsolated) {
-    contextBridge.exposeInMainWorld(R2M_MAIN_WORLD_NAME, {
-      $,
-      ...methods,
-    });
+    contextBridge.exposeInMainWorld(R2M_MAIN_WORLD_NAME, method_set);
   } else {
     // @ts-ignore
-    window[R2M_MAIN_WORLD_NAME] = methods;
+    window[R2M_MAIN_WORLD_NAME] = method_set;
   }
 }

@@ -54,13 +54,13 @@ export default async function register(options: RegisterOptions = {}) {
       // 建立新通道
       const { port1, port2 } = new MessageChannelMain();
       win?.on('closed', () => {
-        (worker as BrowserWindow).webContents.postMessage(
+        (worker as BrowserWindow)?.webContents?.postMessage(
           EVENT.R2R_UNREGISTER,
           win_id,
         );
       });
       // ... 将其中一个端口发送给 Worker
-      (worker as BrowserWindow).webContents.postMessage(
+      (worker as BrowserWindow)?.webContents?.postMessage(
         EVENT.R2R_REGISTER,
         win_id,
         [port1],
@@ -73,21 +73,39 @@ export default async function register(options: RegisterOptions = {}) {
       if (!worker) {
         ipcMain.on(EVENT.R2R_QUESTION, (event, args) => {
           const { from, target, req_id, req_timestamp } = args;
-          const targetWindow = WindowMG.windows.get(target);
-          if (!targetWindow || targetWindow.isDestroyed()) {
-            WindowMG.windows.get(from)?.webContents.send(EVENT.R2R_ANSWER, {
-              jsonrpc: '2.0',
-              error: ERROR.TARGET_NOT_FOUND,
-              target: from,
-              from: R2R_REPEATER_TYPE.IPC,
-              req_id,
-              req_timestamp,
-              res_timestamp: Date.now(),
-            });
+          const isNotice = !req_id;
+          function sendToTarget(t: Target) {
+            const targetWindow = WindowMG.windows.get(t);
+            if (isNotice && (!targetWindow || targetWindow.isDestroyed() || t === from)) {
+              return 0;
+            }
+            if (!targetWindow || targetWindow.isDestroyed()) {
+              WindowMG.windows.get(from)?.webContents.send(EVENT.R2R_ANSWER, {
+                jsonrpc: '2.0',
+                error: ERROR.TARGET_NOT_FOUND,
+                target: from,
+                from: R2R_REPEATER_TYPE.IPC,
+                req_id,
+                req_timestamp,
+                res_timestamp: Date.now(),
+              });
+            }
+            WindowMG.windows
+              .get(t)
+              ?.webContents.send(EVENT.R2R_ANSWER, args);
           }
-          WindowMG.windows
-            .get(target)
-            ?.webContents.send(EVENT.R2R_ANSWER, args);
+
+          if (isNotice) {
+            if (Array.isArray(target)) {
+              target.forEach((t) => sendToTarget(t));
+            } else if (['string', 'number'].includes(typeof target)) {
+              sendToTarget(target);
+            } else {
+              WindowMG.windows.forEach((_, t) => sendToTarget(t));
+            }
+          } else {
+            sendToTarget(target);
+          }
         });
       }
       event.sender.send(EVENT.R2R_SET_WINDOW_NAME, win_id);

@@ -32,7 +32,7 @@ export default async function register(options: RegisterOptions = {}) {
         nodeIntegration: true,
         preload: app.isPackaged
           ? path.join(__dirname, 'worker.preload.js')
-          : path.join(__dirname, '../../../.engine/dll/worker.preload.js'),
+          : path.join(__dirname, '../../../../.engine/dll/worker.preload.js'),
       },
     });
 

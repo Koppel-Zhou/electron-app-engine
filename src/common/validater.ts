@@ -2,6 +2,7 @@ import { ERROR } from './dictionary';
 
 // 正则表达式：匹配合法的变量名
 const validNamePattern = /^[a-zA-Z_$][a-zA-Z0-9_.$]*$/;
+const reserved = ['$'];
 
 export const isValidName = (name: string) => validNamePattern.test(name);
 
@@ -9,10 +10,12 @@ export const registerValidater = (methods: Handlers, handlers: Handlers) => {
   Object.keys(methods).forEach((method) => {
     if (handlers[method]) {
       console.error(`Method name "${method}" has been registered, ignored.`);
+    } else if (reserved.includes(method)) {
+      console.error(`Method name "${method}" is reserved, ignored.`);
     } else if (isValidName(method)) {
       handlers[method] = methods[method];
     } else {
-      console.error(`Invalid method name: ${method}, ignored.`);
+      console.error(`Method name "${method}" is invalid, ignored.`);
     }
   });
 };

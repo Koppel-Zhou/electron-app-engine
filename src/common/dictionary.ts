@@ -31,6 +31,6 @@ export const ERROR = {
   SERVER_ERROR: { code: -32000, message: 'Server error', data: null },
   TARGET_NOT_FOUND: { code: -32001, message: 'Server error', data: 'Target window not found.' },
 };
-export const R2R_MAIN_WORLD_NAME = 'IPC_R2R';
-export const R2M_MAIN_WORLD_NAME = 'IPC_R2M';
-export const M2R_MAIN_WORLD_NAME = 'IPC_M2R';
+export const R2R_MAIN_WORLD_NAME = '__R2R_IPC__';
+export const R2M_MAIN_WORLD_NAME = '__R2M_IPC__';
+export const M2R_MAIN_WORLD_NAME = '__M2R_IPC__';

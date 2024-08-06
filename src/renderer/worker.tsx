@@ -1,3 +1,3 @@
-import initSentry from '../common/sentry';
+import initSentry from '../SDK/sentry';
 
 initSentry();

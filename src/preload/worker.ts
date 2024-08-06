@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import { ERROR, EVENT, R2R_REPEATER_TYPE } from '../common/dictionary';
+import { ERROR, EVENT, R2R_REPEATER_TYPE } from '../SDK/IPC/dictionary';
 
 // MessagePort 对象可以在渲染器或主进程中创建，
 // 并使用 [ipcRenderer.postMessage][] 和 [WebContents.postMessage][] 方法互相传递。

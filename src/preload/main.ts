@@ -1,6 +1,6 @@
-import r2mExport from '../common/R2M/client';
-import r2rConnect from '../common/R2R/connecter';
-import m2rServerRegister from '../common/M2R/server';
+import r2mExport from '../SDK/IPC/R2M/client';
+import r2rConnect from '../SDK/IPC/R2R/connecter';
+import m2rServerRegister from '../SDK/IPC/M2R/server';
 
 document.addEventListener('DOMContentLoaded', () => {
   r2mExport();

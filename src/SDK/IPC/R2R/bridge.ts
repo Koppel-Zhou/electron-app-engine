@@ -7,8 +7,8 @@ import {
   MessageChannelMain,
 } from 'electron';
 import logger from 'electron-log';
-import { resolveHtmlPath } from '../../utils';
-import WindowMG from '../../main/WindowManager';
+import { resolveHtmlPath } from '../../../utils';
+import WindowMG from '../../../main/WindowManager';
 import { ERROR, EVENT, R2R_REPEATER_TYPE } from '../dictionary';
 
 let worker: BrowserWindow | string | null = null;

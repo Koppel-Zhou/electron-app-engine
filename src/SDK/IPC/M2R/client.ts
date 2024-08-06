@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { ipcMain } from 'electron';
 import { ERROR, EVENT } from '../dictionary';
-import WindowMG from '../../main/WindowManager';
+import WindowMG from '../../../main/WindowManager';
 import { answer } from '../validater';
 
 const callbacks: Callbacks = {};

@@ -16,13 +16,13 @@ import log from 'electron-log';
 import WindowMG from './WindowManager';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from '../utils';
-import initSentry from '../common/sentry';
+import initSentry from '../SDK/sentry';
 import initTray from './tray';
-import { init as initNamedPipeExample } from '../common/NamedPipe/example';
-import r2mHandlersRegister from '../common/R2M/server';
-import { methods as app_methods } from '../common/NativeAPI/app';
-import r2rBridgeInit from '../common/R2R/bridge';
-import { R2R_REPEATER_TYPE } from '../common/dictionary';
+import { init as initNamedPipeExample } from '../SDK/NamedPipe/example';
+import r2mHandlersRegister from '../SDK/IPC/R2M/server';
+import { methods as app_methods } from '../SDK/NativeAPI/app';
+import r2rBridgeInit from '../SDK/IPC/R2R/bridge';
+import { R2R_REPEATER_TYPE } from '../SDK/IPC/dictionary';
 
 initSentry();
 

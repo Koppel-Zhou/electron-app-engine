@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { method_keys as app_method_keys } from '../NativeAPI/app';
+import { method_keys as app_method_keys } from '../../NativeAPI/app';
 import { ERROR, EVENT, R2M_MAIN_WORLD_NAME } from '../dictionary';
 
 export default function register() {

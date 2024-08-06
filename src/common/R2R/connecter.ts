@@ -57,8 +57,8 @@ export default function connect() {
             req_timestamp: req_timestamp || Date.now(),
           });
 
-          return new Promise((resolve, _reject) => {
-            callbacks[req_id] = resolve;
+          return new Promise((resolve, reject) => {
+            callbacks[req_id] = [resolve, reject];
           });
         },
       };
@@ -83,6 +83,7 @@ export default function connect() {
           error,
           req_id,
           req_timestamp,
+          res_timestamp,
         } = data;
 
         // 作为服务端，响应method调用
@@ -100,10 +101,10 @@ export default function connect() {
           }
 
           try {
-            const result = await handlers[method](params);
+            const res_result = await handlers[method](params);
             return requestMethod({
               jsonrpc: '2.0',
-              result,
+              result: res_result,
               target: from,
               from: target,
               req_id,
@@ -124,8 +125,18 @@ export default function connect() {
         }
 
         // 作为客户端，接收 result/error 并影响给注册者
-        if (result || error) {
-          callbacks[req_id](data);
+        if (result) {
+          callbacks[req_id][0]({
+            result,
+            req_timestamp,
+            res_timestamp,
+          });
+        } else if (error) {
+          callbacks[req_id][1]({
+            error,
+            req_timestamp,
+            res_timestamp,
+          });
         }
       });
     },

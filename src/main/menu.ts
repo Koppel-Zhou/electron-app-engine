@@ -332,14 +332,14 @@ export default class MenuBuilder {
             },
           },
           {
-            label: 'Call mainWindow plus method',
+            label: 'Call mainWindow plus method with params 4',
             click() {
               request({
                 method: 'plus',
-                params: 1,
+                params: 4,
                 target: 'main',
                 req_timestamp: Date.now(),
-              });
+              }).then(require('electron-log').info).catch(require('electron-log').error);
             },
           },
         ],

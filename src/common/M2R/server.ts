@@ -19,7 +19,6 @@ export default function register() {
     }
     try {
       result = await handlers[method](params);
-      console.log(`[RendererAPI] Received message: ${message}`);
       ipcRenderer.send(EVENT.M2R_ANSWER, {
         jsonrpc: '2.0',
         result,

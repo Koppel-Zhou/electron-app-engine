@@ -20,20 +20,20 @@ const ipcHandler = (
         res_timestamp: Date.now(),
       };
     }
-    let params_obj = {};
+    // let params_obj = {};
 
-    try {
-      params_obj = typeof params === 'string' ? JSON.parse(params) : params;
-    } catch (e) {
-      return {
-        jsonrpc: '2.0',
-        error: ERROR.PARSE_ERROR,
-        req_timestamp,
-        res_timestamp: Date.now(),
-      };
-    }
+    // try {
+    //   params_obj = typeof params === 'string' ? JSON.parse(params) : params;
+    // } catch (e) {
+    //   return {
+    //     jsonrpc: '2.0',
+    //     error: ERROR.PARSE_ERROR,
+    //     req_timestamp,
+    //     res_timestamp: Date.now(),
+    //   };
+    // }
 
-    const result = r2mHandlers[method](params_obj);
+    const result = r2mHandlers[method](params);
 
     return {
       jsonrpc: '2.0',

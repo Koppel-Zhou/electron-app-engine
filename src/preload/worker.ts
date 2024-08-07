@@ -15,7 +15,7 @@ ipcRenderer.on(EVENT.R2R_REGISTER, (regEvent, id) => {
   portMap.set(id, port);
   port.onmessage = (event) => {
     const { from, target, req_id, req_timestamp } = event.data;
-    const isNotice = !req_id;
+    const isNotice = !Object.prototype.hasOwnProperty.call(event.data, 'req_id');
     function sendToTarget(t: Target) {
       if (isNotice && (!portMap.get(t) || t === from)) {
         return 0;

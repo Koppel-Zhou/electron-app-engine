@@ -73,7 +73,7 @@ export default async function register(options: RegisterOptions = {}) {
       if (!worker) {
         ipcMain.on(EVENT.R2R_QUESTION, (event, args) => {
           const { from, target, req_id, req_timestamp } = args;
-          const isNotice = !req_id;
+          const isNotice = !Object.prototype.hasOwnProperty.call(args, 'req_id');
           function sendToTarget(t: Target) {
             const targetWindow = WindowMG.windows.get(t);
             if (isNotice && (!targetWindow || targetWindow.isDestroyed() || t === from)) {

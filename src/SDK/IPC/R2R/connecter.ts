@@ -93,7 +93,7 @@ export default function connect() {
         } = data;
 
         // 作为服务端，响应method调用
-        if (method) {
+        if (Object.prototype.hasOwnProperty.call(data, 'method')) {
           const response = await callValidater(data, handlers);
           const isNotice = !req_id;
           if (isNotice) {
@@ -143,7 +143,7 @@ export default function connect() {
         }
 
         // 作为客户端，接收 result/error 并影响给注册者
-        if (result || error) {
+        if (Object.prototype.hasOwnProperty.call(data, 'result') || Object.prototype.hasOwnProperty.call(data, 'error')) {
           answer(data, callbacks);
         }
         // if (result) {

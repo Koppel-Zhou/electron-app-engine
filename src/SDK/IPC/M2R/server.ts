@@ -7,7 +7,7 @@ export default function start() {
 
   ipcRenderer.on(EVENT.M2R_QUESTION, async (event, message) => {
 
-    const isNotice = !message?.req_id;
+    const isNotice = !Object.prototype.hasOwnProperty.call(message, 'req_id');
 
     if (isNotice) {
       callValidater(message, handlers);

@@ -53,13 +53,13 @@ export const answer = (response: ResponseBody, callbacks: Callbacks) => {
     console.error(`Callback for req_id ${req_id} has been called, ignored.`);
     return;
   }
-  if (result) {
+  if (Object.prototype.hasOwnProperty.call(response, 'result')) {
     callbacks[req_id][0]({
       result,
       req_timestamp,
       res_timestamp,
     });
-  } else if (error) {
+  } else if (Object.prototype.hasOwnProperty.call(response, 'error')) {
     callbacks[req_id][1]({
       error,
       req_timestamp,

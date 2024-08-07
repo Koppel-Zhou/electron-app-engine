@@ -25,7 +25,7 @@ export default function register() {
             req_timestamp: res_req_time,
             res_timestamp,
           } = response;
-          if (result) {
+          if (Object.prototype.hasOwnProperty.call(response, 'result')) {
             resolve({
               result,
               req_id: res_req_id,
@@ -33,7 +33,7 @@ export default function register() {
               res_timestamp,
             });
           }
-          if (error) {
+          if (Object.prototype.hasOwnProperty.call(response, 'error')) {
             // eslint-disable-next-line prefer-promise-reject-errors
             reject({
               error,

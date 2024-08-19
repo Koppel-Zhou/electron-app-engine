@@ -19,7 +19,8 @@ export default function connect() {
       const isMP = !!port;
       const requestMethod = isMP
         ? (message: ProtocolRequest) => port.postMessage(message)
-        : (message: ProtocolRequest) => ipcRenderer.send(EVENT.R2R_QUESTION, message);
+        : (message: ProtocolRequest) =>
+            ipcRenderer.send(EVENT.R2R_QUESTION, message);
       const reply = requestMethod;
       const createServer = isMP
         ? (listener: Function) =>
@@ -52,12 +53,7 @@ export default function connect() {
             callbacks[req_id] = [resolve, reject];
           });
         },
-        notice: ({
-          method,
-          params,
-          target,
-          req_timestamp,
-        }: RequestBody) => {
+        notice: ({ method, params, target, req_timestamp }: RequestBody) => {
           requestMethod({
             jsonrpc: '2.0',
             method,
@@ -65,7 +61,7 @@ export default function connect() {
             target,
             from: self_id,
             req_timestamp: req_timestamp || Date.now(),
-          })
+          });
         },
       };
       if (process.contextIsolated) {
@@ -95,7 +91,10 @@ export default function connect() {
         // 作为服务端，响应method调用
         if (Object.prototype.hasOwnProperty.call(data, 'method')) {
           const response = await callValidater(data, handlers);
-          const isNotice = !req_id;
+          const isNotice = !Object.prototype.hasOwnProperty.call(
+            data,
+            'req_id',
+          );
           if (isNotice) {
             return 0;
           }
@@ -143,7 +142,10 @@ export default function connect() {
         }
 
         // 作为客户端，接收 result/error 并影响给注册者
-        if (Object.prototype.hasOwnProperty.call(data, 'result') || Object.prototype.hasOwnProperty.call(data, 'error')) {
+        if (
+          Object.prototype.hasOwnProperty.call(data, 'result') ||
+          Object.prototype.hasOwnProperty.call(data, 'error')
+        ) {
           answer(data, callbacks);
         }
         // if (result) {

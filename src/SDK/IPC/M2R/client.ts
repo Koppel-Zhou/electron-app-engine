@@ -1,7 +1,6 @@
 import crypto from 'crypto';
-import { ipcMain } from 'electron';
+import { BrowserWindow, ipcMain, webContents } from 'electron';
 import { ERROR, EVENT } from '../dictionary';
-import WindowMG from '../../../main/WindowManager';
 import { answerWithErrorHandler } from '../validater';
 
 const callbacks: Callbacks = {};
@@ -26,7 +25,9 @@ export function request({
   req_timestamp,
 }: RequestBody) {
   const req_id = crypto.randomUUID();
-  const targetWindow = WindowMG.windows.get(target);
+  const targetWindow = BrowserWindow.fromWebContents(
+    webContents.fromId(target),
+  );
   if (!targetWindow || targetWindow.isDestroyed()) {
     return Promise.resolve({
       jsonrpc: '2.0',
@@ -50,15 +51,12 @@ export function request({
   });
 }
 
-function noticeTarget({
-  method,
-  params,
-  target,
-  req_timestamp,
-}: RequestBody) {
-  const targetWindow = WindowMG.windows.get(target);
+function noticeTarget({ method, params, target, req_timestamp }: RequestBody) {
+  const targetWindow = BrowserWindow.fromWebContents(
+    webContents.fromId(target),
+  );
   if (!targetWindow || targetWindow.isDestroyed()) {
-    console.error(`The target window ${target} is not found.`)
+    console.error(`The target window ${target} is not found.`);
     return 0;
   }
   targetWindow?.webContents.send(EVENT.M2R_QUESTION, {
@@ -69,21 +67,17 @@ function noticeTarget({
   });
 }
 
-export function notice({
-  method,
-  params,
-  target,
-  req_timestamp,
-}: RequestBody) {
+export function notice({ method, params, target, req_timestamp }: RequestBody) {
   if (Array.isArray(target)) {
-    target.forEach((win_key) => {
-      noticeTarget({ method, params, target: win_key, req_timestamp });
+    target.forEach((windowWebContentsId) => {
+      noticeTarget({
+        method,
+        params,
+        target: windowWebContentsId,
+        req_timestamp,
+      });
     });
-  } else if (['string', 'number'].includes(typeof target)) {
-    noticeTarget({ method, params, target, req_timestamp });
   } else {
-    WindowMG.names.forEach((win_key) => {
-      noticeTarget({ method, params, target: win_key, req_timestamp });
-    });
+    noticeTarget({ method, params, target, req_timestamp });
   }
 }

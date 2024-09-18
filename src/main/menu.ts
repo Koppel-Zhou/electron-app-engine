@@ -206,7 +206,7 @@ export default class MenuBuilder {
             request({
               method: 'plus',
               params: 4,
-              target: 'main',
+              target: 3,
               req_timestamp: Date.now(),
             })
               .then(require('electron-log').info)
@@ -339,7 +339,7 @@ export default class MenuBuilder {
               request({
                 method: 'plus',
                 params: 4,
-                target: 'main',
+                target: 3,
                 req_timestamp: Date.now(),
               })
                 .then(require('electron-log').info)

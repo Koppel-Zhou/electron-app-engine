@@ -13,8 +13,9 @@ export default function connect() {
   ipcRenderer.send(EVENT.R2R_INIT_BRIDGE);
 
   ipcRenderer.once(
-    EVENT.R2R_SET_WINDOW_NAME,
-    (workerEvent: IpcRendererEvent, self_id: string | number) => {
+    EVENT.R2R_SET_WINDOW_WEBCONTENTS_ID,
+    (workerEvent: IpcRendererEvent, self_id: number) => {
+      console.log(EVENT.R2R_SET_WINDOW_WEBCONTENTS_ID, self_id);
       const [port] = workerEvent.ports;
       const isMP = !!port;
       const requestMethod = isMP

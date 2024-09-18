@@ -14,7 +14,7 @@ type RegisterOptions = {
   repeater?: string;
 };
 
-type Target = string | number | Array<string | number>;
+type Target = number | Array<number>;
 
 type RequestBody = {
   method: string;

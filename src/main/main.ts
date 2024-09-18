@@ -8,7 +8,7 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import * as Sentry from '@sentry/electron';
+import * as Sentry from '@sentry/electron/main';
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
@@ -16,7 +16,7 @@ import log from 'electron-log';
 import WindowMG from './WindowManager';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from '../utils';
-import initSentry from '../SDK/sentry';
+import initSentry from '../SDK/sentry/main';
 import initTray from './tray';
 import { init as initNamedPipeExample } from '../SDK/NamedPipe/example';
 import r2mHandlersRegister from '../SDK/IPC/R2M/server';

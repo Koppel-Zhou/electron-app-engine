@@ -6,7 +6,7 @@ const reserved = ['$'];
 
 export const isValidName = (name: string) => validNamePattern.test(name);
 
-export const registerValidater = (methods: Handlers, handlers: Handlers) => {
+export const registerWithErrorHandler = (methods: Handlers, handlers: Handlers) => {
   Object.keys(methods).forEach((method) => {
     if (handlers[method]) {
       console.error(`Method name "${method}" has been registered, ignored.`);
@@ -19,7 +19,7 @@ export const registerValidater = (methods: Handlers, handlers: Handlers) => {
     }
   });
 };
-export const callValidater = async (
+export const requestWithErrorHandler = async (
   requestBody: RequestBody,
   handlers: Handlers,
 ) => {
@@ -47,24 +47,18 @@ export const callValidater = async (
   return response;
 };
 
-export const answer = (response: ResponseBody, callbacks: Callbacks) => {
-  const { req_id, req_timestamp, res_timestamp, result, error } = response;
-  if (!callbacks[req_id]) {
-    console.error(`Callback for req_id ${req_id} has been called, ignored.`);
-    return;
-  }
-  if (Object.prototype.hasOwnProperty.call(response, 'result')) {
-    callbacks[req_id][0]({
-      result,
-      req_timestamp,
-      res_timestamp,
-    });
-  } else if (Object.prototype.hasOwnProperty.call(response, 'error')) {
-    callbacks[req_id][1]({
-      error,
-      req_timestamp,
-      res_timestamp,
-    });
-  }
-  callbacks[req_id] = null;
-};
+export const answerWithErrorHandler =
+  (callback: [Function, Function]) => (response: ResponseBody) => {
+    const [resolve, reject] = callback || [];
+    if (!(resolve instanceof Function) || !(reject instanceof Function)) {
+      console.error(
+        `Callback for req_id "${response?.req_id}" dose not exists, ignored.`,
+      );
+      return 0;
+    }
+    if (Object.prototype.hasOwnProperty.call(response, 'result')) {
+      resolve(response);
+    } else if (Object.prototype.hasOwnProperty.call(response, 'error')) {
+      reject(response);
+    }
+  };

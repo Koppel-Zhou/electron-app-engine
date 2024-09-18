@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import { EVENT, R2R_MAIN_WORLD_NAME } from '../dictionary';
-import { answer, callValidater, registerValidater } from '../validater';
+import { answerWithErrorHandler, requestWithErrorHandler, registerWithErrorHandler } from '../validater';
 
 export default function connect() {
   // 注册的远程调用处理器
@@ -30,7 +30,7 @@ export default function connect() {
 
       const EXPOSE_PORT = {
         register: (methods: Handlers) => {
-          registerValidater(methods, handlers);
+          registerWithErrorHandler(methods, handlers);
         },
         request: async ({
           method,
@@ -90,7 +90,7 @@ export default function connect() {
 
         // 作为服务端，响应method调用
         if (Object.prototype.hasOwnProperty.call(data, 'method')) {
-          const response = await callValidater(data, handlers);
+          const response = await requestWithErrorHandler(data, handlers);
           const isNotice = !Object.prototype.hasOwnProperty.call(
             data,
             'req_id',
@@ -146,7 +146,7 @@ export default function connect() {
           Object.prototype.hasOwnProperty.call(data, 'result') ||
           Object.prototype.hasOwnProperty.call(data, 'error')
         ) {
-          answer(data, callbacks);
+          answerWithErrorHandler(callbacks[data?.req_id])(data);
         }
         // if (result) {
         //   callbacks[req_id][0]({

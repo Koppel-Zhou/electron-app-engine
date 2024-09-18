@@ -2,12 +2,13 @@ import crypto from 'crypto';
 import { ipcMain } from 'electron';
 import { ERROR, EVENT } from '../dictionary';
 import WindowMG from '../../../main/WindowManager';
-import { answer } from '../validater';
+import { answerWithErrorHandler } from '../validater';
 
 const callbacks: Callbacks = {};
 
 ipcMain.on(EVENT.M2R_ANSWER, (event, res: ResponseBody) => {
-  answer(res, callbacks);
+  answerWithErrorHandler(callbacks[res?.req_id])(res);
+  callbacks[res?.req_id] = null;
   // const { req_id, result, error, req_timestamp, res_timestamp } = res;
   // if (result) {
   //   callbacks[req_id][0]({ result, req_timestamp, res_timestamp });

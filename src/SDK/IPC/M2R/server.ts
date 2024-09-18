@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { EVENT, M2R_MAIN_WORLD_NAME } from '../dictionary';
-import { callValidater, registerValidater } from '../validater';
+import { requestWithErrorHandler, registerWithErrorHandler } from '../validater';
 
 export default function start() {
   let handlers: Handlers = {};
@@ -10,11 +10,11 @@ export default function start() {
     const isNotice = !Object.prototype.hasOwnProperty.call(message, 'req_id');
 
     if (isNotice) {
-      callValidater(message, handlers);
+      requestWithErrorHandler(message, handlers);
       return 0;
     }
 
-    const response = await callValidater(message, handlers);
+    const response = await requestWithErrorHandler(message, handlers);
     ipcRenderer.send(EVENT.M2R_ANSWER, response);
     // let result = null;
     // if (!handlers[method]) {
@@ -46,7 +46,7 @@ export default function start() {
     // }
   });
   function register(methods: Handlers) {
-    registerValidater(methods, handlers);
+    registerWithErrorHandler(methods, handlers);
   }
 
   if (process.contextIsolated) {

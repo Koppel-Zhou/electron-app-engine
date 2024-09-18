@@ -1,10 +1,10 @@
 import { IpcMainInvokeEvent, ipcMain } from 'electron';
 import { EVENT } from '../dictionary';
-import { callValidater, registerValidater } from '../validater';
+import { requestWithErrorHandler, registerWithErrorHandler } from '../validater';
 
 const handlers: Handlers = {};
 const ipcHandler = async (_event: IpcMainInvokeEvent, message: RequestBody) => {
-  return await callValidater(message, handlers);
+  return await requestWithErrorHandler(message, handlers);
   // let params_obj = {};
 
   // try {
@@ -49,5 +49,5 @@ const ipcHandler = async (_event: IpcMainInvokeEvent, message: RequestBody) => {
 ipcMain.handle(EVENT.R2M_MESSAGE, ipcHandler);
 
 export default function register(methods: Handlers) {
-  registerValidater(methods, handlers);
+  registerWithErrorHandler(methods, handlers);
 }
